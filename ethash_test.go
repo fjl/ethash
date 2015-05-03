@@ -32,6 +32,24 @@ func (b *testBlock) Nonce() uint64            { return b.nonce }
 func (b *testBlock) MixDigest() common.Hash   { return b.mixDigest }
 func (b *testBlock) NumberU64() uint64        { return b.number }
 
+var validBlocks = []*testBlock{
+	{
+		number:      22,
+		hashNoNonce: common.HexToHash("372eca2454ead349c3df0ab5d00b0b706b23e49d469387db91811cee0358fc6d"),
+		difficulty:  big.NewInt(132416),
+		nonce:       0x495732e0ed7a801c,
+	},
+}
+
+func TestEthashVerify(t *testing.T) {
+	eth := New()
+	for i, block := range validBlocks {
+		if !eth.Verify(block) {
+			t.Errorf("block %d (%x) did not validate.", i, block.hashNoNonce[:6])
+		}
+	}
+}
+
 func TestEthashConcurrentVerify(t *testing.T) {
 	eth, err := NewForTesting()
 	if err != nil {
