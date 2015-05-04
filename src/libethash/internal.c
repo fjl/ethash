@@ -171,6 +171,15 @@ bool ethash_compute_full_data(
 	return true;
 }
 
+static char* hashstr(const ethash_h256_t data)
+{
+	char* buf = calloc(1, 65);
+	for (int i = 0; i < 32; i++) {
+		sprintf(&buf[i*2], "%02x", data.b[i]);
+	}
+	return buf;
+}
+
 static bool ethash_hash(
 	ethash_return_value_t* ret,
 	node const* full_nodes,
@@ -180,6 +189,7 @@ static bool ethash_hash(
 	uint64_t const nonce
 )
 {
+	printf("ethash_hash(... full_size: %llu, nonce: %llx, hash: %s)\n", full_size, nonce, hashstr(header_hash));
 	if (full_size % MIX_WORDS != 0) {
 		return false;
 	}
@@ -251,6 +261,7 @@ static bool ethash_hash(
 	memcpy(&ret->mix_hash, mix->bytes, 32);
 	// final Keccak hash
 	SHA3_256(&ret->result, s_mix->bytes, 64 + 32); // Keccak-256(s + compressed_mix)
+	printf("result: %s\n", hashstr(ret->result));
 	return true;
 }
 
